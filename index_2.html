@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Tracker Tim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#F5F4F1;color:#1a1a1a;height:100vh;display:flex;align-items:stretch}
+.app{display:flex;width:100%;height:100vh;background:#fff;overflow:hidden}
+.sidebar{width:190px;border-right:1px solid #E8E6E1;padding:1.25rem 0;display:flex;flex-direction:column;gap:2px;background:#FAFAF8;flex-shrink:0}
+.sidebar-logo{font-size:13px;font-weight:600;color:#1a1a1a;padding:0 1.25rem 1rem;letter-spacing:.01em;display:flex;align-items:center;gap:8px}
+.sidebar-logo i{font-size:18px;color:#178A63}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 1.25rem;font-size:13.5px;color:#666;cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.nav-item:hover{background:#F0EFE9;color:#1a1a1a}
+.nav-item.active{background:#EAF3EE;color:#0F6E56;border-left-color:#178A63;font-weight:500}
+.nav-item i{font-size:16px}
+.sidebar-bottom{margin-top:auto;padding:1rem 1.25rem;border-top:1px solid #E8E6E1}
+.stat-label{font-size:11px;color:#999;margin-bottom:3px}
+.stat-val{font-size:26px;font-weight:600;color:#1a1a1a}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:.875rem 1.5rem;border-bottom:1px solid #E8E6E1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff}
+.topbar-title{font-size:15px;font-weight:600;color:#1a1a1a;margin-right:auto}
+select{font-size:12.5px;padding:5px 10px;border:1px solid #DDD;border-radius:8px;background:#fff;color:#333;height:32px;cursor:pointer;outline:none}
+select:focus{border-color:#178A63}
+.btn{font-size:13px;padding:0 12px;border:1px solid #DDD;border-radius:8px;background:#fff;color:#333;cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:32px;transition:all .15s;white-space:nowrap}
+.btn:hover{background:#F5F4F1;border-color:#bbb}
+.btn.primary{background:#178A63;color:#fff;border-color:#178A63;font-weight:500}
+.btn.primary:hover{background:#0F6E56;border-color:#0F6E56}
+.btn.danger{color:#A32D2D}
+.btn.danger:hover{background:#FFF0F0;border-color:#F7C1C1}
+.content-area{flex:1;overflow-y:auto;padding:1.5rem}
+.view-toggle{display:flex;border:1px solid #DDD;border-radius:8px;overflow:hidden}
+.vtbtn{padding:0 10px;height:32px;font-size:13px;cursor:pointer;border:none;background:transparent;color:#888;display:flex;align-items:center}
+.vtbtn.active{background:#F0EFE9;color:#1a1a1a}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 12px;color:#888;font-weight:500;border-bottom:1px solid #EEECEA;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+td{padding:10px 12px;border-bottom:1px solid #F0EFE9;color:#1a1a1a;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAF8}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11.5px;font-weight:500;white-space:nowrap}
+.s-idea{background:#F1EFE8;color:#5F5E5A}
+.s-progress{background:#E6F1FB;color:#0C447C}
+.s-ready{background:#FAEEDA;color:#633806}
+.s-posted{background:#EAF3DE;color:#3B6D11}
+.kanban{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kancol{background:#FAFAF8;border-radius:10px;padding:12px;border:1px solid #EEECEA}
+.kancol-title{font-size:12px;font-weight:600;color:#666;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;text-transform:uppercase;letter-spacing:.05em}
+.kancard{background:#fff;border:1px solid #E8E6E1;border-radius:8px;padding:12px;margin-bottom:8px}
+.kancard-title{font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:8px;line-height:1.4}
+.kancard-meta{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.kancard-foot{display:flex;align-items:center;justify-content:space-between}
+.pill-count{background:#E8E6E1;border-radius:20px;font-size:11px;padding:2px 7px;color:#666}
+.avatar{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day-name{text-align:center;font-size:11px;color:#999;padding:6px 4px;font-weight:600;letter-spacing:.03em}
+.cal-cell{min-height:70px;border:1px solid #EEECEA;border-radius:6px;padding:5px;background:#fff}
+.cal-cell.other-month{background:#FAFAF8;opacity:.6}
+.cal-cell.today{border-color:#178A63}
+.cal-date{font-size:11px;color:#999;margin-bottom:3px;font-weight:500}
+.cal-event{font-size:10px;padding:2px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(2px)}
+.modal{background:#fff;border-radius:14px;border:1px solid #E8E6E1;padding:1.75rem;width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+.modal h2{font-size:16px;font-weight:600;margin-bottom:1.25rem;color:#1a1a1a}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;color:#666;margin-bottom:5px;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%;font-size:13.5px;padding:8px 10px;border:1px solid #DDD;border-radius:8px;background:#fff;color:#1a1a1a;outline:none;font-family:inherit;transition:border .15s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#178A63}
+.form-group textarea{height:70px;resize:vertical}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.team-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid #E8E6E1;border-radius:10px;margin-bottom:10px;background:#fff}
+.team-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0}
+.empty{text-align:center;padding:3rem;color:#aaa;font-size:14px}
+.empty i{font-size:36px;display:block;margin-bottom:10px;opacity:.4}
+.settings-section{margin-bottom:2rem}
+.settings-section h3{font-size:13px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem;padding-bottom:8px;border-bottom:1px solid #EEECEA}
+.tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.tag-item{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:12.5px;font-weight:500;border:1px solid transparent}
+.tag-item button{background:none;border:none;cursor:pointer;font-size:14px;line-height:1;opacity:.6;padding:0}
+.tag-item button:hover{opacity:1}
+.tag-add{display:flex;gap:8px;align-items:center}
+.tag-add input{flex:1;font-size:13px;padding:6px 10px;border:1px solid #DDD;border-radius:8px;outline:none;font-family:inherit}
+.tag-add input:focus{border-color:#178A63}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="sidebar">
+  <div class="sidebar-logo"><i class="ti ti-layout-grid"></i>Content Tracker</div>
+  <div class="nav-item active" onclick="setNav('list',this)"><i class="ti ti-layout-list"></i> Content List</div>
+  <div class="nav-item" onclick="setNav('calendar',this)"><i class="ti ti-calendar"></i> Kalender</div>
+  <div class="nav-item" onclick="setNav('team',this)"><i class="ti ti-users"></i> Tim</div>
+  <div class="nav-item" onclick="setNav('settings',this)"><i class="ti ti-settings"></i> Settings</div>
+  <div class="sidebar-bottom">
+    <div class="stat-label">Total konten</div>
+    <div class="stat-val" id="total-count">0</div>
+  </div>
+</div>
+<div class="main">
+
+  <!-- Content List -->
+  <div id="view-list" class="view-section" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar">
+      <span class="topbar-title">Content List</span>
+      <select id="f-bulan" onchange="renderList()"><option value="">Semua bulan</option><option value="2025-05">Mei 2025</option><option value="2025-06" selected>Juni 2025</option><option value="2025-07">Juli 2025</option></select>
+      <select id="f-pilar" onchange="renderList()"></select>
+      <select id="f-platform" onchange="renderList()"></select>
+      <select id="f-status" onchange="renderList()"><option value="">Semua status</option><option>Idea</option><option>In Progress</option><option>Ready to Post</option><option>Posted</option></select>
+      <div class="view-toggle">
+        <button class="vtbtn active" onclick="setView('table',this)" title="Tabel"><i class="ti ti-table"></i></button>
+        <button class="vtbtn" onclick="setView('kanban',this)" title="Kanban"><i class="ti ti-layout-columns"></i></button>
+      </div>
+      <button class="btn primary" onclick="openModal()"><i class="ti ti-plus"></i> Tambah</button>
+    </div>
+    <div class="content-area" id="list-body"></div>
+  </div>
+
+  <!-- Kalender -->
+  <div id="view-calendar" class="view-section" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar">
+      <button class="btn" onclick="calPrev()"><i class="ti ti-chevron-left"></i></button>
+      <span class="topbar-title" id="cal-label" style="margin:0 auto"></span>
+      <button class="btn" onclick="calNext()"><i class="ti ti-chevron-right"></i></button>
+    </div>
+    <div class="content-area"><div class="cal-grid" id="cal-grid"></div></div>
+  </div>
+
+  <!-- Tim -->
+  <div id="view-team" class="view-section" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar"><span class="topbar-title">Anggota Tim</span><button class="btn primary" onclick="addMember()"><i class="ti ti-plus"></i> Tambah</button></div>
+    <div class="content-area" id="team-body"></div>
+  </div>
+
+  <!-- Settings -->
+  <div id="view-settings" class="view-section" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar"><span class="topbar-title">Settings</span></div>
+    <div class="content-area">
+      <div style="max-width:560px">
+
+        <!-- Pilar -->
+        <div class="settings-section">
+          <h3>Content Pillar</h3>
+          <div class="tag-list" id="pilar-list"></div>
+          <div class="tag-add">
+            <input type="text" id="new-pilar" placeholder="Nama pilar baru..." onkeydown="if(event.key==='Enter')addPilar()">
+            <button class="btn primary" onclick="addPilar()"><i class="ti ti-plus"></i> Tambah</button>
+          </div>
+        </div>
+
+        <!-- Platform -->
+        <div class="settings-section">
+          <h3>Platform</h3>
+          <div class="tag-list" id="platform-list"></div>
+          <div class="tag-add">
+            <input type="text" id="new-platform" placeholder="Nama platform baru..." onkeydown="if(event.key==='Enter')addPlatform()">
+            <button class="btn primary" onclick="addPlatform()"><i class="ti ti-plus"></i> Tambah</button>
+          </div>
+        </div>
+
+        <!-- Format -->
+        <div class="settings-section">
+          <h3>Format Konten</h3>
+          <div class="tag-list" id="format-list"></div>
+          <div class="tag-add">
+            <input type="text" id="new-format" placeholder="Nama format baru..." onkeydown="if(event.key==='Enter')addFormat()">
+            <button class="btn primary" onclick="addFormat()"><i class="ti ti-plus"></i> Tambah</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Modal Tambah/Edit Konten -->
+<div id="modal" style="display:none">
+  <div class="modal-bg" onclick="closeModalBg(event)">
+    <div class="modal">
+      <h2 id="modal-title">Tambah Konten</h2>
+      <div class="form-group"><label>Judul konten</label><input type="text" id="f-title" placeholder="Masukkan judul..."></div>
+      <div class="form-row">
+        <div class="form-group"><label>Pilar</label><select id="f-cp"></select></div>
+        <div class="form-group"><label>Platform</label><select id="f-plat"></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Format</label><select id="f-fmt"></select></div>
+        <div class="form-group"><label>Status</label><select id="f-st"><option>Idea</option><option>In Progress</option><option>Ready to Post</option><option>Posted</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Assign ke</label><select id="f-assign"></select></div>
+        <div class="form-group"><label>Due date</label><input type="date" id="f-due"></div>
+      </div>
+      <div class="form-group"><label>Catatan</label><textarea id="f-notes" placeholder="Catatan tambahan..."></textarea></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem">
+        <button class="btn" onclick="closeModal()">Batal</button>
+        <button class="btn primary" onclick="saveContent()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+let contents=[
+  {id:1,title:"Cara pilih jaket anak yang tepat",pilar:"Edukasi",platform:"Instagram",format:"Carousel",status:"Posted",assign:"Zian",due:"2025-06-03",notes:""},
+  {id:2,title:"Review dari mama Siti — anaknya betah pakai Wookay",pilar:"Social Proof",platform:"TikTok",format:"Reels",status:"Posted",assign:"Rina",due:"2025-06-05",notes:""},
+  {id:3,title:"Fitur waterproof jacket kids",pilar:"Product Feature",platform:"Instagram",format:"Reels",status:"Ready to Post",assign:"Zian",due:"2025-06-10",notes:"Fokus di demo hujan"},
+  {id:4,title:"OOTD anak lucu pakai Wookay",pilar:"Hiburan",platform:"TikTok",format:"Reels",status:"In Progress",assign:"Dito",due:"2025-06-12",notes:""},
+  {id:5,title:"Tips baju outdoor anak aman & nyaman",pilar:"Edukasi",platform:"YouTube",format:"Short",status:"In Progress",assign:"Rina",due:"2025-06-18",notes:""},
+  {id:6,title:"Testimoni 100+ mama puas",pilar:"Social Proof",platform:"Instagram",format:"Carousel",status:"Idea",assign:"Dito",due:"2025-06-22",notes:"Kumpulkan UGC dulu"},
+  {id:7,title:"Behind the scenes produksi jaket",pilar:"Product Feature",platform:"TikTok",format:"Reels",status:"Idea",assign:"Zian",due:"2025-06-28",notes:""}
+];
+let members=["Zian","Rina","Dito"];
+let nextId=8;
+let currentView="table";
+let editId=null;
+let calYear=2025,calMonth=5;
+
+// Configurable lists
+let pilars=["Edukasi","Social Proof","Product Feature","Hiburan"];
+let platforms=["Instagram","TikTok","YouTube"];
+let formats=["Reels","Carousel","Story","Static Post","Short"];
+
+// Colors
+const pilarColors=["#AFA9EC","#5DCAA5","#F0997B","#FAC775","#7EC8E3","#F7A8C4","#A8D8A8","#FFD580"];
+const pilarBg=["#EEEDFE","#E1F5EE","#FAECE7","#FAEEDA","#E3F4FA","#FDEEF5","#EAF3DE","#FFFBEA"];
+const pilarTxt=["#3C3489","#085041","#712B13","#633806","#0B4D6B","#72243E","#3B6D11","#5C4B00"];
+const platBg=["#FBEAF0","#E6F1FB","#FCEBEB","#EAF3EE","#FFF8E1","#F3E5F5"];
+const platTxt=["#72243E","#185FA5","#791F1F","#0F6E56","#795500","#6A1B9A"];
+const statusClass={"Idea":"s-idea","In Progress":"s-progress","Ready to Post":"s-ready","Posted":"s-posted"};
+const avatarColors=[["#EEEDFE","#3C3489"],["#E1F5EE","#085041"],["#FAECE7","#712B13"],["#FAEEDA","#633806"],["#E6F1FB","#0C447C"]];
+
+function getPilarStyle(p){const i=pilars.indexOf(p);const idx=Math.max(0,i)%pilarColors.length;return `background:${pilarBg[idx]};color:${pilarTxt[idx]}`}
+function getPlatStyle(p){const i=platforms.indexOf(p);const idx=Math.max(0,i)%platBg.length;return `background:${platBg[idx]};color:${platTxt[idx]}`}
+function getPilarDotColor(p){const i=pilars.indexOf(p);return pilarColors[Math.max(0,i)%pilarColors.length]}
+function getAvatar(name){const i=members.indexOf(name);const [bg,txt]=avatarColors[Math.max(0,i)%avatarColors.length];return `<div class="avatar" style="background:${bg};color:${txt}">${name.slice(0,2).toUpperCase()}</div>`}
+
+// ===================== NAV =====================
+function setNav(name,el){
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.view-section').forEach(e=>e.style.display='none');
+  const v=document.getElementById('view-'+name);
+  v.style.display='flex';v.style.flexDirection='column';v.style.flex='1';v.style.overflow='hidden';
+  if(name==='list')renderList();
+  if(name==='calendar')renderCal();
+  if(name==='team')renderTeam();
+  if(name==='settings')renderSettings();
+}
+
+function setView(v,el){
+  currentView=v;
+  document.querySelectorAll('.vtbtn').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+// ===================== FILTERS =====================
+function refreshFilterSelects(){
+  const fp=document.getElementById('f-pilar');
+  const fpl=document.getElementById('f-platform');
+  if(!fp||!fpl)return;
+  const pv=fp.value,plv=fpl.value;
+  fp.innerHTML=`<option value="">Semua pilar</option>`+pilars.map(p=>`<option${p===pv?' selected':''}>${p}</option>`).join('');
+  fpl.innerHTML=`<option value="">Semua platform</option>`+platforms.map(p=>`<option${p===plv?' selected':''}>${p}</option>`).join('');
+}
+
+function filtered(){
+  let d=[...contents];
+  const bulan=document.getElementById('f-bulan').value;
+  const pilar=document.getElementById('f-pilar').value;
+  const platform=document.getElementById('f-platform').value;
+  const status=document.getElementById('f-status').value;
+  if(bulan)d=d.filter(x=>x.due&&x.due.startsWith(bulan));
+  if(pilar)d=d.filter(x=>x.pilar===pilar);
+  if(platform)d=d.filter(x=>x.platform===platform);
+  if(status)d=d.filter(x=>x.status===status);
+  return d;
+}
+
+// ===================== LIST =====================
+function renderList(){
+  refreshFilterSelects();
+  document.getElementById('total-count').textContent=contents.length;
+  const data=filtered();
+  const el=document.getElementById('list-body');
+  if(currentView==='table'){
+    if(!data.length){el.innerHTML='<div class="empty"><i class="ti ti-inbox"></i>Belum ada konten yang cocok</div>';return}
+    el.innerHTML=`<table><thead><tr><th>Judul</th><th>Pilar</th><th>Platform</th><th>Format</th><th>Assign</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody>`+
+    data.map(c=>`<tr>
+      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${c.title}">${c.title}</td>
+      <td><span class="badge" style="${getPilarStyle(c.pilar)}">${c.pilar}</span></td>
+      <td><span class="badge" style="${getPlatStyle(c.platform)}">${c.platform}</span></td>
+      <td style="color:#888;font-size:12.5px">${c.format}</td>
+      <td>${getAvatar(c.assign)}</td>
+      <td style="color:#888;font-size:12.5px;white-space:nowrap">${c.due||'-'}</td>
+      <td><span class="badge ${statusClass[c.status]||''}">${c.status}</span></td>
+      <td style="white-space:nowrap;display:flex;gap:4px">
+        <button class="btn" style="padding:0 8px;height:28px" onclick="editContent(${c.id})"><i class="ti ti-edit"></i></button>
+        <button class="btn danger" style="padding:0 8px;height:28px" onclick="deleteContent(${c.id})"><i class="ti ti-trash"></i></button>
+      </td>
+    </tr>`).join('')+'</tbody></table>';
+  } else {
+    const cols=["Idea","In Progress","Ready to Post","Posted"];
+    el.innerHTML=`<div class="kanban">`+cols.map(s=>{
+      const items=data.filter(x=>x.status===s);
+      return `<div class="kancol"><div class="kancol-title"><span>${s}</span><span class="pill-count">${items.length}</span></div>`+
+      (items.length?items.map(c=>`<div class="kancard">
+        <div class="kancard-title">${c.title}</div>
+        <div class="kancard-meta">
+          <span class="badge" style="${getPilarStyle(c.pilar)}">${c.pilar}</span>
+          <span class="badge" style="${getPlatStyle(c.platform)}">${c.platform}</span>
+        </div>
+        <div class="kancard-foot">
+          <span style="font-size:11px;color:#aaa">${c.due||''}</span>
+          ${getAvatar(c.assign)}
+        </div>
+      </div>`).join(''):'<div style="font-size:12px;color:#bbb;text-align:center;padding:16px">Kosong</div>')+
+      `</div>`;
+    }).join('')+'</div>';
+  }
+}
+
+// ===================== KALENDER =====================
+function renderCal(){
+  const months=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  document.getElementById('cal-label').textContent=`${months[calMonth]} ${calYear}`;
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const today=new Date();
+  const dayNames=["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
+  let html=dayNames.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+  for(let i=0;i<firstDay;i++)html+=`<div class="cal-cell other-month"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=today.getDate()===d&&today.getMonth()===calMonth&&today.getFullYear()===calYear;
+    const items=contents.filter(c=>c.due===dateStr);
+    html+=`<div class="cal-cell${isToday?' today':''}"><div class="cal-date" style="${isToday?'color:#178A63;font-weight:700':''}">${d}</div>`+
+    items.map(c=>`<div class="cal-event" style="background:${getPilarDotColor(c.pilar)};color:#3C3234" title="${c.title} — ${c.assign}">${c.title}</div>`).join('')+`</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+}
+function calPrev(){if(calMonth===0){calMonth=11;calYear--;}else calMonth--;renderCal()}
+function calNext(){if(calMonth===11){calMonth=0;calYear++;}else calMonth++;renderCal()}
+
+// ===================== TIM =====================
+function renderTeam(){
+  const el=document.getElementById('team-body');
+  el.innerHTML=members.map((m,i)=>{
+    const count=contents.filter(c=>c.assign===m).length;
+    const [bg,txt]=avatarColors[i%avatarColors.length];
+    return `<div class="team-card">
+      <div class="team-avatar" style="background:${bg};color:${txt}">${m.slice(0,2).toUpperCase()}</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:500">${m}</div><div style="font-size:12px;color:#888;margin-top:2px">${count} konten ditugaskan</div></div>
+      <button class="btn danger" style="padding:0 10px" onclick="deleteMember('${m}')"><i class="ti ti-trash"></i></button>
+    </div>`;
+  }).join('')||'<div class="empty"><i class="ti ti-users"></i>Belum ada anggota tim</div>';
+}
+function addMember(){
+  const name=prompt("Nama anggota tim:");
+  if(name&&name.trim()&&!members.includes(name.trim())){members.push(name.trim());renderTeam();}
+}
+function deleteMember(m){if(confirm(`Hapus ${m} dari tim?`)){members=members.filter(x=>x!==m);renderTeam();}}
+
+// ===================== SETTINGS =====================
+function renderSettings(){
+  renderPilarList();
+  renderPlatformList();
+  renderFormatList();
+}
+
+function renderPilarList(){
+  document.getElementById('pilar-list').innerHTML=pilars.map((p,i)=>{
+    const idx=i%pilarColors.length;
+    return `<div class="tag-item" style="background:${pilarBg[idx]};color:${pilarTxt[idx]};border-color:${pilarBg[idx]}">
+      ${p}
+      <button onclick="removePilar('${p}')" title="Hapus">×</button>
+    </div>`;
+  }).join('');
+}
+
+function renderPlatformList(){
+  document.getElementById('platform-list').innerHTML=platforms.map((p,i)=>{
+    const idx=i%platBg.length;
+    return `<div class="tag-item" style="background:${platBg[idx]};color:${platTxt[idx]};border-color:${platBg[idx]}">
+      ${p}
+      <button onclick="removePlatform('${p}')" title="Hapus">×</button>
+    </div>`;
+  }).join('');
+}
+
+function renderFormatList(){
+  document.getElementById('format-list').innerHTML=formats.map(f=>`
+    <div class="tag-item" style="background:#F1EFE8;color:#5F5E5A;border-color:#E8E6E1">
+      ${f}
+      <button onclick="removeFormat('${f}')" title="Hapus">×</button>
+    </div>`).join('');
+}
+
+function addPilar(){
+  const val=document.getElementById('new-pilar').value.trim();
+  if(val&&!pilars.includes(val)){pilars.push(val);document.getElementById('new-pilar').value='';renderPilarList();refreshFilterSelects();}
+}
+function removePilar(p){
+  if(contents.some(c=>c.pilar===p)&&!confirm(`Pilar "${p}" masih dipakai di beberapa konten. Tetap hapus?`))return;
+  pilars=pilars.filter(x=>x!==p);renderPilarList();refreshFilterSelects();
+}
+
+function addPlatform(){
+  const val=document.getElementById('new-platform').value.trim();
+  if(val&&!platforms.includes(val)){platforms.push(val);document.getElementById('new-platform').value='';renderPlatformList();refreshFilterSelects();}
+}
+function removePlatform(p){
+  if(contents.some(c=>c.platform===p)&&!confirm(`Platform "${p}" masih dipakai di beberapa konten. Tetap hapus?`))return;
+  platforms=platforms.filter(x=>x!==p);renderPlatformList();refreshFilterSelects();
+}
+
+function addFormat(){
+  const val=document.getElementById('new-format').value.trim();
+  if(val&&!formats.includes(val)){formats.push(val);document.getElementById('new-format').value='';renderFormatList();}
+}
+function removeFormat(f){
+  formats=formats.filter(x=>x!==f);renderFormatList();
+}
+
+// ===================== MODAL =====================
+function openModal(id=null){
+  editId=id;
+  document.getElementById('modal-title').textContent=id?'Edit Konten':'Tambah Konten';
+  // Populate dynamic dropdowns
+  document.getElementById('f-cp').innerHTML=pilars.map(p=>`<option>${p}</option>`).join('');
+  document.getElementById('f-plat').innerHTML=platforms.map(p=>`<option>${p}</option>`).join('');
+  document.getElementById('f-fmt').innerHTML=formats.map(f=>`<option>${f}</option>`).join('');
+  document.getElementById('f-assign').innerHTML=members.map(m=>`<option>${m}</option>`).join('');
+  if(id){
+    const c=contents.find(x=>x.id===id);
+    document.getElementById('f-title').value=c.title;
+    document.getElementById('f-cp').value=c.pilar;
+    document.getElementById('f-plat').value=c.platform;
+    document.getElementById('f-fmt').value=c.format;
+    document.getElementById('f-st').value=c.status;
+    document.getElementById('f-assign').value=c.assign;
+    document.getElementById('f-due').value=c.due;
+    document.getElementById('f-notes').value=c.notes;
+  } else {
+    ['f-title','f-due','f-notes'].forEach(id=>document.getElementById(id).value='');
+  }
+  document.getElementById('modal').style.display='block';
+}
+function closeModal(){document.getElementById('modal').style.display='none';}
+function closeModalBg(e){if(e.target.classList.contains('modal-bg'))closeModal();}
+
+function saveContent(){
+  const title=document.getElementById('f-title').value.trim();
+  if(!title)return alert("Judul tidak boleh kosong");
+  const obj={id:editId||nextId++,title,pilar:document.getElementById('f-cp').value,platform:document.getElementById('f-plat').value,format:document.getElementById('f-fmt').value,status:document.getElementById('f-st').value,assign:document.getElementById('f-assign').value,due:document.getElementById('f-due').value,notes:document.getElementById('f-notes').value};
+  if(editId)contents=contents.map(c=>c.id===editId?obj:c);
+  else contents.push(obj);
+  closeModal();renderList();
+}
+function editContent(id){openModal(id)}
+function deleteContent(id){if(confirm("Hapus konten ini?"))contents=contents.filter(x=>x.id!==id);renderList();}
+
+// ===================== INIT =====================
+refreshFilterSelects();
+renderList();
+</script>
+</body>
+</html>
